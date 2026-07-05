@@ -1,4 +1,4 @@
-# fidget-meadow
+# Fidget Meadow
 
 A cozy multiplayer grid world for in-person gatherings — shared low-stress
 fidgeting for people who are catching up around a table.
