@@ -27,6 +27,8 @@ into `NEXT.md` when a session picks them up. Groom rarely; delete freely.
 - Harden the GitHub-Actions deploy key on the home server: forced command /
   `from=` restriction in authorized_keys (currently a full shell). (M1 deploy
   setup; limits blast radius if repo secrets leak.)
+- Bump actions/checkout, setup-node, pnpm/action-setup to current majors —
+  CI warns they target deprecated Node 20 runners. (M1 first CI run.)
 - Image-gen provider choice + API key handling for tools/ (needed by M10,
   not before).
 - Accessibility pass: text size, contrast, color-blind-safe tile palette.

@@ -30,9 +30,10 @@ Render the meadow from map JSON with the placeholder system.
   with two clients; 12 tests green; Docker image builds and runs.
 - Trunk-based auto-deploy works: push to main → GitHub Actions tests →
   ssh to home server → compose build → healthcheck on :3011. See
-  NOTES.local.md (untracked) for server details, and the two manual steps
-  if they're still pending: DNS A record for meadow.beechersoftware.com and
-  the Caddy route (both written out in NOTES.local.md).
+  NOTES.local.md (untracked) for server details. Public URL is
+  https://meadow.orangecrayon.org (DNS done 2026-07-05); if it doesn't
+  respond, the Caddy route may still be pending — one-liner in
+  NOTES.local.md.
 - `shared/src/map.ts` is a deliberate half-sketch, imported by nothing.
   `MeadowMap.objects` is commented out on purpose — object placements wait
   for M7's interact rules.

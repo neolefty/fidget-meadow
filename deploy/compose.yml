@@ -1,6 +1,6 @@
 # Runs on the home server from the repo checkout at ~/deploy/fidget-meadow:
 #   docker compose -f deploy/compose.yml up -d --build
-# Caddy reverse-proxies meadow.beechersoftware.com -> 127.0.0.1:3011.
+# Caddy reverse-proxies meadow.orangecrayon.org -> 127.0.0.1:3011.
 services:
   meadow:
     build:
