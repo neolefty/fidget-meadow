@@ -57,3 +57,18 @@ No server game loop, no cron. Plant growth = f(now − planted_at). The world
 
 Maximally forkable, matches the "template for others" goal. Flagged in
 BACKLOG for final confirmation before first publish.
+
+## D11 — Trunk-based deploy, built on the home server (2026-07-05)
+
+Push to `main` → GitHub Actions runs tests → ssh to the basement server →
+`git reset --hard origin/main` + `docker compose up -d --build` in
+`~/deploy/fidget-meadow`, health-checked on localhost:3011. Building on the
+server avoids registry auth entirely. Passed on: GHCR (package-visibility
+friction), self-hosted runner (one more daemon to babysit). Rollback = reset
+to an older sha and rebuild.
+
+## D12 — tsx runs the server in production, for now (2026-07-05)
+
+No server compile step; the container runs TS directly via tsx. One less
+build to keep green during M1–M5. Revisit only if startup time or memory
+ever matters at family scale.

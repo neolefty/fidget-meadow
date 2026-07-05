@@ -7,3 +7,4 @@ dist/
 *.sqlite-*
 data/
 .DS_Store
+*.local.md

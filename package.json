@@ -1,0 +1,11 @@
+{
+  "name": "fidget-meadow",
+  "private": true,
+  "packageManager": "pnpm@10.17.1",
+  "scripts": {
+    "dev": "pnpm --parallel --filter server --filter client dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

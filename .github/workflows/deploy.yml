@@ -1,0 +1,54 @@
+name: ci-and-deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm typecheck
+      - run: pnpm --filter @fidget/client build
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+      - name: Pull and rebuild on home server
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+              -p "${{ secrets.DEPLOY_PORT }}" \
+              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+              'set -eu
+               cd ~/deploy/fidget-meadow
+               git fetch origin main
+               git reset --hard origin/main
+               docker compose -f deploy/compose.yml up -d --build
+               for i in 1 2 3 4 5; do
+                 sleep 3
+                 if curl -fsS http://localhost:3011/healthz; then echo; echo "deploy healthy"; exit 0; fi
+               done
+               echo "healthcheck failed" >&2
+               docker compose -f deploy/compose.yml logs --tail 50
+               exit 1'

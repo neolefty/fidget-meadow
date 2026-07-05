@@ -1,39 +1,49 @@
 # Next session
 
-**Milestone:** M1 — Walking skeleton (docs/ROADMAP.md)
+**Milestone:** M2 — A world to look at (docs/ROADMAP.md)
 
 ## The task
 
-Scaffold the pnpm monorepo and get one protocol message round-tripping:
+Render the meadow from map JSON with the placeholder system.
 
-1. Root: `pnpm-workspace.yaml`, root `package.json` with a `dev` script that
-   runs client + server concurrently, shared `tsconfig.base.json`
-   (strict: true), `.gitignore` already exists.
-2. `shared/`: `src/protocol.ts` with the `ClientMsg`/`ServerMsg` unions from
-   docs/ARCHITECTURE.md (start with just `join` / `welcome` / `toast`).
-   Vitest configured; one trivial test asserting a message parses.
-3. `server/`: Node + `ws` + `tsx` dev runner. On `join`, reply `welcome` with
-   a generated player id/token (in-memory only — no SQLite yet, that's M5).
-4. `client/`: Vite + React + TS. Render a PixiJS canvas with a colored
-   rectangle, connect the socket, send `join`, display the `welcome` player
-   id in a React overlay. Ugly is correct at this stage.
-5. `Dockerfile` that builds client + server and runs the server serving the
-   static client. Compose file can wait for M6.
+1. Finish `shared/src/map.ts` (already sketched — tile kinds + placeholder
+   table exist): add `parseMeadowMap()` in the same defensive style as
+   `parseClientMsg`, plus a vitest for it.
+2. Hand-author `client/public/starter-meadow.json` — something like 24×16
+   with a path, a pond, hedges around the edge.
+3. Replace the hardcoded rectangle in `client/src/game/stage.ts` with the
+   tile grid: colored square per tile, emoji on top (Pixi Text), nearest-
+   neighbor. Camera can stay fixed this session; clamped follow needs a
+   player position, which is M3's business.
+4. Placeholder rendering is a small reusable helper — avatars and objects
+   will use it too (AGENTS.md: placeholders are first-class).
 
 ## Done means
 
-- `pnpm dev` → browser at the Vite URL shows the rectangle and "joined as
-  <id>" text proving the round-trip.
-- `pnpm test` green. `docker build .` succeeds.
+- The meadow renders at phone width and desktop; editing starter-meadow.json
+  visibly changes the world after reload.
+- `pnpm test` green (map parser tested). Deploy stays green.
 
-## Downward slope for the end of that session
+## Current state (M1 shipped 2026-07-05)
 
-Start M2 before stopping: sketch `shared/src/map.ts` (tile kind enum + map
-JSON type) and leave a `// next: render this in the Pixi layer` note. Then
-rewrite this file.
+- Walking skeleton is LIVE: join/welcome/toast round-trips over ws, verified
+  with two clients; 12 tests green; Docker image builds and runs.
+- Trunk-based auto-deploy works: push to main → GitHub Actions tests →
+  ssh to home server → compose build → healthcheck on :3011. See
+  NOTES.local.md (untracked) for server details, and the two manual steps
+  if they're still pending: DNS A record for meadow.beechersoftware.com and
+  the Caddy route (both written out in NOTES.local.md).
+- `shared/src/map.ts` is a deliberate half-sketch, imported by nothing.
+  `MeadowMap.objects` is commented out on purpose — object placements wait
+  for M7's interact rules.
+- One browser-eyeball check of the live client (rectangle + "joined as"
+  pill) hasn't been done by a human yet — do that first, it's 30 seconds.
 
 ## Notes
 
-- First session in the scaffolded repo — also make the initial git commit(s)
-  if M0's docs are still uncommitted.
-- Keep versions current-stable: PixiJS 8.x, Vite latest, pnpm workspaces.
+- Versions: TypeScript 6, Vite 8, Vitest 4, Pixi 8.19, React 19.2, pnpm 10.
+- Client store pattern: `client/src/net/socket.ts` exposes
+  subscribe/getState (useSyncExternalStore); Pixi should subscribe to the
+  same store when it starts caring about state (M3).
+- Emoji-on-Pixi-Text renders differently per platform; if it looks bad on
+  someone's phone, that's a BACKLOG note, not a session derail.

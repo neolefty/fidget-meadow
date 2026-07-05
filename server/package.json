@@ -1,0 +1,23 @@
+{
+  "name": "@fidget/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "tsx src/main.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fidget/shared": "workspace:*",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

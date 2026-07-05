@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#16200f" />
+    <title>fidget meadow</title>
+    <style>
+      /* Dark cozy background so nothing flashes white before Pixi paints. */
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #16200f;
+        color: #f2efe6;
+        font-family: system-ui, sans-serif;
+        overflow: hidden;
+        overscroll-behavior: none;
+        -webkit-text-size-adjust: 100%;
+      }
+      /* Pixi canvas layer (behind) */
+      #stage {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+      /* React overlay layer (in front) */
+      #root {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none; /* overlay children opt back in */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -21,10 +21,12 @@ into `NEXT.md` when a session picks them up. Groom rarely; delete freely.
 
 ## Chores / hygiene
 
-- Publish to GitHub once M1 lands: repo description, topics, screenshots in
-  README for discoverability. Confirm MIT is the intended license.
-- Decide reverse-proxy details on basement server (existing Caddy/Traefik?)
-  before M6.
+- Repo is published (2026-07-05) with description; still to do: topics,
+  screenshots in README for discoverability. Confirm MIT is the intended
+  license.
+- Harden the GitHub-Actions deploy key on the home server: forced command /
+  `from=` restriction in authorized_keys (currently a full shell). (M1 deploy
+  setup; limits blast radius if repo secrets leak.)
 - Image-gen provider choice + API key handling for tools/ (needed by M10,
   not before).
 - Accessibility pass: text size, contrast, color-blind-safe tile palette.
