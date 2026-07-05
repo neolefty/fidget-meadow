@@ -72,3 +72,15 @@ to an older sha and rebuild.
 No server compile step; the container runs TS directly via tsx. One less
 build to keep green during M1–M5. Revisit only if startup time or memory
 ever matters at family scale.
+
+## D13 — Plan in sessions; party-ready always (2026-07-05)
+
+Session 1 delivered M1 plus most of M6 — ~4–5 sessions of the original
+40-session budget — so months are the wrong planning unit. Recalibrations:
+a milestone defaults to one session (split what doesn't fit); calendar-gated
+work (garden growth, art taste, real-device testing) is pulled earlier than
+code dependencies require, because agent speed compresses code time but not
+wall-clock time; after M8 there is no single debut — every family gathering
+is a playtest of whatever exists. Surplus session budget goes to backlog
+activities and charm, not schedule compression. Milestone numbers stay
+stable; only their order changed.

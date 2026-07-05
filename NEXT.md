@@ -42,6 +42,8 @@ Render the meadow from map JSON with the placeholder system.
 
 ## Notes
 
+- Roadmap recalibrated 2026-07-05 to session units (ROADMAP intro + D13).
+  M2 is unchanged and still the rail; the reordering starts after M5.
 - Versions: TypeScript 6, Vite 8, Vitest 4, Pixi 8.19, React 19.2, pnpm 10.
 - Client store pattern: `client/src/net/socket.ts` exposes
   subscribe/getState (useSyncExternalStore); Pixi should subscribe to the
