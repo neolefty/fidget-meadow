@@ -1,0 +1,59 @@
+# Decisions (ADR-lite)
+
+One entry per decision: what we chose, why, what we passed on. Newest last.
+Reversing a decision gets a new entry, not an edit.
+
+## D1 — TypeScript, strict, everywhere (2026-07-05)
+
+Client, server, shared, tools. TS types (especially discriminated-union
+protocol messages) are how sessions communicate across months. No plain JS.
+
+## D2 — PixiJS v8 canvas + React overlay (2026-07-05)
+
+Pixi renders the world with nearest-neighbor pixel scaling; React renders
+lobby, modals, host console. Passed on: Phaser (fights React, brings unused
+weight), pure DOM grid (charming but caps animation/perf headroom).
+
+## D3 — Hand-rolled Node + ws, server-authoritative (2026-07-05)
+
+One room, JSON messages, clients send intents, server broadcasts patches.
+At ≤12 players with discrete movement, a sync framework is pure overhead.
+Passed on: Colyseus (idiom layer agents fight), CRDTs (wrong shape for
+game rules).
+
+## D4 — In-repo markdown tracking (2026-07-05)
+
+NEXT.md rail + BACKLOG.md + DECISIONS.md, per AGENTS.md. Zero-auth for
+agents, diffable, travels with the fork. Promote to GitHub Issues if outside
+contributors materialize.
+
+## D5 — Game repo separate from family content (2026-07-05)
+
+fidget-meadow (this repo) is the open-source game; `birthday-trivia/<year>`
+(private) holds party content that configures it. Keeps the public repo free
+of family data and forces a clean content/engine boundary.
+
+## D6 — SQLite via better-sqlite3 (2026-07-05)
+
+One file, synchronous API, trivial backup (copy the file). A DB server is
+overkill by two orders of magnitude.
+
+## D7 — No auth: name + avatar + localStorage token (2026-07-05)
+
+Players are trusted family on a party URL. The `welcome` token only makes
+reconnect resume the same player.
+
+## D8 — One Docker container on the basement server (2026-07-05)
+
+Node serves static client + WebSocket on one port, behind the existing
+reverse proxy. SQLite on a volume.
+
+## D9 — Time-based mechanics computed lazily from timestamps (2026-07-05)
+
+No server game loop, no cron. Plant growth = f(now − planted_at). The world
+"grows between parties" for free and an idle server does nothing.
+
+## D10 — MIT license (2026-07-05)
+
+Maximally forkable, matches the "template for others" goal. Flagged in
+BACKLOG for final confirmation before first publish.
