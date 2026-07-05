@@ -37,8 +37,8 @@ Render the meadow from map JSON with the placeholder system.
 - `shared/src/map.ts` is a deliberate half-sketch, imported by nothing.
   `MeadowMap.objects` is commented out on purpose — object placements wait
   for M7's interact rules.
-- One browser-eyeball check of the live client (rectangle + "joined as"
-  pill) hasn't been done by a human yet — do that first, it's 30 seconds.
+- Human-verified live 2026-07-05: green square + "joined as <uuid>" pill
+  at https://meadow.orangecrayon.org on Bill's screen.
 
 ## Notes
 
