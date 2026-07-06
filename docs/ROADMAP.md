@@ -110,8 +110,9 @@ converging from warm-down experiments. Placeholder fallback stays forever.
 
 ### M11 — Juice
 
-Sounds (off by default at the table), emotes/waves, movement and interaction
-animations, seeing what others are up to.
+Sounds (opt-in at join, never load-bearing, every sound has a visual twin —
+see ideas/audio-and-asset-materialization.md), emotes/waves, movement and
+interaction animations, seeing what others are up to.
 
 ### M12 — Party runbook
 

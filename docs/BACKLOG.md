@@ -14,6 +14,14 @@ pointer here — the list stays scannable, the detail survives.
 - Interaction-chain "little language": declarative format so chains are
   family content, not engine code. Post-MVP, rule of three applies — see
   ideas/interaction-chains.md. (2026-07-05)
+- Sound system for M11: synth-blip placeholders, Freesound/CC0 fetch tool
+  with license manifest, visual-twin captions («wheek wheek», directional).
+  See ideas/audio-and-asset-materialization.md. (2026-07-05)
+- Lazy asset materialization: server generates missing chain assets
+  (sprites + sounds) on first encounter, content-hash cached. Post-MVP,
+  paired with the little language — same ideas doc. (2026-07-05)
+- Distributed-speaker ambience: server picks one phone at the table to emit
+  an ambient sound. Delightful, far future — same ideas doc. (2026-07-05)
 - Family-photo-derived avatars — deliberately deferred (maybe never);
   described-prompt avatars are plan of record. (M0 discussion)
 - Writing-sprint activity with shared timer and optional read-aloud order
