@@ -16,12 +16,18 @@ export interface WorldSnapshot {
   players: PlayerSnapshot[];
 }
 
-export type ClientMsg = {
-  t: "join";
-  name: string;
-  avatar: string;
-  token?: string;
-};
+export type MoveDir = "north" | "south" | "east" | "west";
+
+export type ClientMsg =
+  | {
+      t: "join";
+      name: string;
+      avatar: string;
+      token?: string;
+    }
+  // M3 rail: parsed but not yet handled — the server ignores `move` until
+  // world.ts learns positions and a patch broadcast exists.
+  | { t: "move"; dir: MoveDir };
 
 export type ServerMsg =
   | { t: "welcome"; you: PlayerId; token: string; snapshot: WorldSnapshot }
@@ -48,6 +54,13 @@ export function parseClientMsg(raw: unknown): ClientMsg | null {
         const parsed: ClientMsg = { t: "join", name: msg.name, avatar: msg.avatar };
         if (typeof msg.token === "string") parsed.token = msg.token;
         return parsed;
+      }
+      return null;
+    }
+    case "move": {
+      const dir = msg.dir;
+      if (dir === "north" || dir === "south" || dir === "east" || dir === "west") {
+        return { t: "move", dir };
       }
       return null;
     }

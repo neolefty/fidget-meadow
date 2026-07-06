@@ -1,52 +1,58 @@
 # Next session
 
-**Milestone:** M2 — A world to look at (docs/ROADMAP.md)
+**Milestone:** M3 — People in the world (docs/ROADMAP.md)
 
 ## The task
 
-Render the meadow from map JSON with the placeholder system.
+Server-authoritative movement, visible to everyone.
 
-1. Finish `shared/src/map.ts` (already sketched — tile kinds + placeholder
-   table exist): add `parseMeadowMap()` in the same defensive style as
-   `parseClientMsg`, plus a vitest for it.
-2. Hand-author `client/public/starter-meadow.json` — something like 24×16
-   with a path, a pond, hedges around the edge.
-3. Replace the hardcoded rectangle in `client/src/game/stage.ts` with the
-   tile grid: colored square per tile, emoji on top (Pixi Text), nearest-
-   neighbor. Camera can stay fixed this session; clamped follow needs a
-   player position, which is M3's business.
-4. Placeholder rendering is a small reusable helper — avatars and objects
-   will use it too (AGENTS.md: placeholders are first-class).
+1. The rail is already laid: `{ t: "move", dir }` exists in
+   `shared/src/protocol.ts` (parsed + tested) and the server *ignores it* —
+   that's the half-built sentence to finish. Extend `ServerMsg` with a
+   patch/broadcast shape (e.g. `{ t: "pos"; id; x; y }` or a small patch
+   union — your call, record it in DECISIONS if it's load-bearing).
+2. `server/src/world.ts`: give players real positions on the map (spawn on a
+   path tile, not water/hedge), apply `move` with bounds + walkability
+   checks (`hedge`/`water` block; `MeadowMap` is in shared). The server
+   needs to load the map too — move/share `starter-meadow.json` so both
+   sides read the same file (it lives in `client/public/` today).
+3. Client: `socket.ts` handles the new patch message into the store; Pixi
+   subscribes (`subscribe`/`getState`, same store React uses) and renders
+   players as placeholder squares+emoji via `makePlaceholder`
+   (`client/src/game/placeholder.ts`). Arrow keys send `move` — tap-to-move
+   is M4, don't start it.
+4. Join screen (name + avatar picker from a hardcoded list) if the session
+   has room; otherwise it rolls to M4 alongside phone feel. Reconnect
+   tokens already work (D7).
 
 ## Done means
 
-- The meadow renders at phone width and desktop; editing starter-meadow.json
-  visibly changes the world after reload.
-- `pnpm test` green (map parser tested). Deploy stays green.
+- Two browser windows see each other walk around live; walking into hedge
+  or pond does nothing (server refused, client shows no wiggle).
+- `pnpm test` green: movement rules (bounds, walkability, spawn) tested in
+  `world.test.ts`; new protocol cases tested in `protocol.test.ts`.
+- Deploy stays green.
 
-## Current state (M1 shipped 2026-07-05)
+## Current state (M2 shipped 2026-07-05, session 2)
 
-- Walking skeleton is LIVE: join/welcome/toast round-trips over ws, verified
-  with two clients; 12 tests green; Docker image builds and runs.
-- Trunk-based auto-deploy works: push to main → GitHub Actions tests →
-  ssh to home server → compose build → healthcheck on :3011. See
-  NOTES.local.md (untracked) for server details. Public URL is
-  https://meadow.orangecrayon.org (DNS done 2026-07-05); if it doesn't
-  respond, the Caddy route may still be pending — one-liner in
-  NOTES.local.md.
-- `shared/src/map.ts` is a deliberate half-sketch, imported by nothing.
-  `MeadowMap.objects` is commented out on purpose — object placements wait
-  for M7's interact rules.
-- Human-verified live 2026-07-05: green square + "joined as <uuid>" pill
-  at https://meadow.orangecrayon.org on Bill's screen.
+- The meadow renders from `client/public/starter-meadow.json` (rows of
+  single-char tile codes — D14) at phone and desktop width; editing the
+  JSON changes the world on reload; a bogus map degrades to background +
+  console.error, no crash. Verified with headless-Chrome screenshots.
+- `parseMeadowMap` + `TILE_CHARS` live in `shared/src/map.ts`, tested.
+  `MeadowMap.objects` still deliberately absent until M7.
+- `client/src/game/placeholder.ts` → `makePlaceholder(ph, size)` is the
+  reusable colored-square+emoji builder; `stage.ts` bakes one texture per
+  tile kind via `generateTexture` and reuses sprites. Avatars should use
+  the same helper.
+- Camera is whole-map-fit, fixed, in `stage.ts` (`layout()`); clamped
+  follow becomes possible once players have positions this session.
+- 17 tests green (shared 10, server 7). `pnpm dev` runs both sides; Vite
+  proxies `/ws` to :8787.
 
 ## Notes
 
-- Roadmap recalibrated 2026-07-05 to session units (ROADMAP intro + D13).
-  M2 is unchanged and still the rail; the reordering starts after M5.
 - Versions: TypeScript 6, Vite 8, Vitest 4, Pixi 8.19, React 19.2, pnpm 10.
-- Client store pattern: `client/src/net/socket.ts` exposes
-  subscribe/getState (useSyncExternalStore); Pixi should subscribe to the
-  same store when it starts caring about state (M3).
-- Emoji-on-Pixi-Text renders differently per platform; if it looks bad on
-  someone's phone, that's a BACKLOG note, not a session derail.
+- Watch for a stray dev server already holding :8787 (one was alive on
+  Bill's machine this session — `lsof -nP -iTCP:8787` before `pnpm dev`).
+- Emoji rendering varies per platform; that's a BACKLOG item, not a derail.

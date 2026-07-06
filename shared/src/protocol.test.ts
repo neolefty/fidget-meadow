@@ -12,6 +12,14 @@ describe("parseClientMsg", () => {
     expect(parseClientMsg(raw)).toEqual({ t: "join", name: "Bill", avatar: "hedgehog", token: "abc" });
   });
 
+  it("parses a move intent", () => {
+    expect(parseClientMsg(JSON.stringify({ t: "move", dir: "north" }))).toEqual({
+      t: "move",
+      dir: "north",
+    });
+    expect(parseClientMsg(JSON.stringify({ t: "move", dir: "up" }))).toBeNull();
+  });
+
   it("rejects junk", () => {
     expect(parseClientMsg("not json")).toBeNull();
     expect(parseClientMsg(JSON.stringify({ t: "explode" }))).toBeNull();

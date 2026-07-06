@@ -49,3 +49,7 @@ pointer here — the list stays scannable, the detail survives.
 - Image-gen provider choice + API key handling for tools/ (needed by M10,
   not before).
 - Accessibility pass: text size, contrast, color-blind-safe tile palette.
+- Client bundle >500 kB minified (Vite warning since Pixi landed in M2) —
+  code-split or raise the limit; only matters if party-wifi load feels slow.
+- Emoji tile glyphs render per-platform (Pixi Text rasterizes the system
+  font); check on a real iPhone/Android at the next gathering. (M2 note.)

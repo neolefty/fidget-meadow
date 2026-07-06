@@ -45,15 +45,11 @@ alone would dictate:
 - **M6 — Deploy** ✅ absorbed into session 1 (trunk-based auto-deploy, D11).
   Remainder: QR-code generation for the join URL — rides along with M8
   or M12.
+- **M2 — A world to look at** ✅ 2026-07-05, session 2. Map JSON (rows of
+  tile codes, D14) → Pixi tile grid via placeholders; starter meadow;
+  whole-map fixed camera. Verified on phone- and desktop-width screenshots.
 
 ## Remaining, in recommended order
-
-### M2 — A world to look at
-
-Map JSON → Pixi tile grid via the placeholder system (colored square +
-emoji per kind); hand-authored starter meadow; fixed camera.
-**Done means:** meadow renders on phone and desktop; editing
-starter-meadow.json changes the world. *(NEXT.md carries the detailed rail.)*
 
 ### M3 — People in the world
 

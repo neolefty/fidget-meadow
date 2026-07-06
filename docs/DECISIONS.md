@@ -84,3 +84,13 @@ wall-clock time; after M8 there is no single debut — every family gathering
 is a playtest of whatever exists. Surplus session budget goes to backlog
 activities and charm, not schedule compression. Milestone numbers stay
 stable; only their order changed.
+
+## D14 — Map JSON is rows of single-char tile codes (2026-07-05)
+
+The in-memory model stays the sketched `MeadowMap` (row-major `TileKind[]`),
+but map *files* are `{ "rows": ["hhhh…", "hgph…", …] }` with one char per
+tile (`TILE_CHARS` in shared/src/map.ts). A 24×16 meadow is 16 readable
+strings you can edit in place — the M2 done-criterion ("editing the JSON
+changes the world") is unusable against a 384-element word array. Passed on:
+Tiled/TMX (tooling weight for a 5-tile palette), width/height + flat array
+JSON (hand-hostile).
