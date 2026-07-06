@@ -21,7 +21,13 @@ Server-authoritative movement, visible to everyone.
    players as placeholder squares+emoji via `makePlaceholder`
    (`client/src/game/placeholder.ts`). Arrow keys send `move` — tap-to-move
    is M4, don't start it.
-4. Join screen (name + avatar picker from a hardcoded list) if the session
+4. Camera: replace whole-map-fit with clamped follow at fixed tile scale —
+   viewport ≈ 8 tiles across (Bill 2026-07-05: tiles must stay ≥44px touch
+   targets; 8 wide = 45–54px on 360–430px phones, 10 wide is too small).
+   `screenWidth / 8`, follow your player, clamp to map edges. One
+   continuous world — rooms are a non-goal (ARCHITECTURE: "a thin camera
+   follows the player").
+5. Join screen (name + avatar picker from a hardcoded list) if the session
    has room; otherwise it rolls to M4 alongside phone feel. Reconnect
    tokens already work (D7).
 
@@ -29,6 +35,8 @@ Server-authoritative movement, visible to everyone.
 
 - Two browser windows see each other walk around live; walking into hedge
   or pond does nothing (server refused, client shows no wiggle).
+- At phone width the camera follows you at ~8 tiles across, clamped to the
+  map edge — no more whole-map-fit.
 - `pnpm test` green: movement rules (bounds, walkability, spawn) tested in
   `world.test.ts`; new protocol cases tested in `protocol.test.ts`.
 - Deploy stays green.
