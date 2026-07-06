@@ -2,9 +2,18 @@
 
 Append one line per item: what, where it came up, why it matters. Pull items
 into `NEXT.md` when a session picks them up. Groom rarely; delete freely.
+An idea too rich for one line gets a file in `docs/ideas/` and a one-line
+pointer here — the list stays scannable, the detail survives.
 
 ## Ideas / features
 
+- Guinea pigs! Family pets as in-world critters with a discovery chain
+  (seeds → greens → +knife → scraps → +bag rustle → off-screen meeping →
+  go find them). Strong early activity-shelf item, hardcoded — see
+  ideas/interaction-chains.md. (2026-07-05)
+- Interaction-chain "little language": declarative format so chains are
+  family content, not engine code. Post-MVP, rule of three applies — see
+  ideas/interaction-chains.md. (2026-07-05)
 - Family-photo-derived avatars — deliberately deferred (maybe never);
   described-prompt avatars are plan of record. (M0 discussion)
 - Writing-sprint activity with shared timer and optional read-aloud order
