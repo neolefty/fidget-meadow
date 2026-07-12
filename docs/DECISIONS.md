@@ -94,3 +94,32 @@ strings you can edit in place — the M2 done-criterion ("editing the JSON
 changes the world") is unusable against a 384-element word array. Passed on:
 Tiled/TMX (tooling weight for a 5-tile palette), width/height + flat array
 JSON (hand-hostile).
+
+## D15 — World sync = one welcome snapshot, then tiny upsert patches (2026-07-05)
+
+`welcome` carries the full `WorldSnapshot` once; after that the server
+broadcasts `{t:"player", player}` (full public state, upsert by id — sent on
+join *and* reconnect, so a re-picked name/avatar propagates) and
+`{t:"pos", id, x, y}` (after a server-approved move, echoed to the mover
+too). No client prediction: arrows send intents and nothing on screen
+changes until the patch returns — a refused move is silence, which is what
+makes "walking into the hedge shows no wiggle" free. Passed on:
+rebroadcasting full snapshots (fine at 12 players, but M7 objects need patch
+discipline anyway), seq numbers/acks (nothing to reorder on one TCP socket).
+
+## D16 — Sessions have a consult beat; taste is never boring-optioned (2026-07-12)
+
+The downhill-slope protocol worked too well: sessions ran "let's get
+started" → pushed with zero human input, because NEXT.md was unambiguous
+and the boring-option rule silently resolved every judgment call. But
+agent-written plans feeding agent sessions means the human's taste never
+enters the loop — well-executed drift. AGENTS.md now defines the session as
+a cycle (warm up on the unfinished task → summarize → consult → tackle the
+hardest thing → leave an easy one Hemingway-unfinished). The consult hunts
+for whatever ambiguity is foremost *that session* — gameplay, art, party
+integration, technical, or focus — and is mandatory even when the plan
+needs no clarification. Boring-option is rescoped to engineering questions
+only; NEXT.md gains a Live questions section as consult seeds. Passed on:
+end-of-session playtest checklists alone (feedback arrives a session late),
+pausing on every mid-work design choice (reintroduces the stall the prime
+directive exists to prevent).

@@ -1,66 +1,76 @@
 # Next session
 
-**Milestone:** M3 — People in the world (docs/ROADMAP.md)
+**Milestone:** M3 leftover (join screen) → M4 — Feels good on a phone
+(docs/ROADMAP.md)
 
 ## The task
 
-Server-authoritative movement, visible to everyone.
+A join screen: pick a name and an avatar before entering the meadow.
 
-1. The rail is already laid: `{ t: "move", dir }` exists in
-   `shared/src/protocol.ts` (parsed + tested) and the server *ignores it* —
-   that's the half-built sentence to finish. Extend `ServerMsg` with a
-   patch/broadcast shape (e.g. `{ t: "pos"; id; x; y }` or a small patch
-   union — your call, record it in DECISIONS if it's load-bearing).
-2. `server/src/world.ts`: give players real positions on the map (spawn on a
-   path tile, not water/hedge), apply `move` with bounds + walkability
-   checks (`hedge`/`water` block; `MeadowMap` is in shared). The server
-   needs to load the map too — move/share `starter-meadow.json` so both
-   sides read the same file (it lives in `client/public/` today).
-3. Client: `socket.ts` handles the new patch message into the store; Pixi
-   subscribes (`subscribe`/`getState`, same store React uses) and renders
-   players as placeholder squares+emoji via `makePlaceholder`
-   (`client/src/game/placeholder.ts`). Arrow keys send `move` — tap-to-move
-   is M4, don't start it.
-4. Camera: replace whole-map-fit with clamped follow at fixed tile scale —
-   viewport ≈ 8 tiles across (Bill 2026-07-05: tiles must stay ≥44px touch
-   targets; 8 wide = 45–54px on 360–430px phones, 10 wide is too small).
-   `screenWidth / 8`, follow your player, clamp to map edges. One
-   continuous world — rooms are a non-goal (ARCHITECTURE: "a thin camera
-   follows the player").
-5. Join screen (name + avatar picker from a hardcoded list) if the session
-   has room; otherwise it rolls to M4 alongside phone feel. Reconnect
-   tokens already work (D7).
+1. The rail is already laid: `AVATAR_PLACEHOLDERS` in
+   `shared/src/avatars.ts` is the hardcoded picker list and already renders
+   in-world (`avatarPlaceholder` gives unknown ids a ❓ fallback). The line
+   to break is in `client/src/net/socket.ts` `ws.onopen` — it hardcodes
+   `{ t: "join", name: "visitor", avatar: "sprout" }`. Split "socket is
+   open" from "player chose who to be": add a store status like
+   `"picking"` and an exported `joinAs(name, avatar)`.
+2. React (`client/src/App.tsx`): a centered form — name field + a row of
+   avatar buttons showing each placeholder's emoji on its color. Big touch
+   targets (≥44px; grandmothers). The overlay currently has
+   `pointerEvents: "none"` — the form needs its own `pointerEvents: auto`.
+3. Reconnect fast-path: a stored token should prefill (or skip) the form —
+   putting the phone down mid-party must not mean re-typing your name.
+   Keep the decision small; note it in DECISIONS only if it's surprising.
+4. Replace the "joined as <uuid>" pill with the chosen name.
+5. If the session has room, start M4 tap-to-move: send one `move` per tap
+   toward the tapped tile (naive single-step is fine; A* pathing is not
+   required to start). Pixi pointer events on the stage, world→tile math
+   is `TILE_SIZE` × camera scale in `client/src/game/stage.ts`.
 
 ## Done means
 
-- Two browser windows see each other walk around live; walking into hedge
-  or pond does nothing (server refused, client shows no wiggle).
-- At phone width the camera follows you at ~8 tiles across, clamped to the
-  map edge — no more whole-map-fit.
-- `pnpm test` green: movement rules (bounds, walkability, spawn) tested in
-  `world.test.ts`; new protocol cases tested in `protocol.test.ts`.
-- Deploy stays green.
+- Fresh phone-width browser: form first, meadow after choosing; your
+  picked avatar/name are what everyone else sees (upsert already handles
+  it server-side — D15).
+- Reload mid-walk: back in the meadow at the same spot without re-picking
+  (token path), or the form prefilled — whichever you chose in (3).
+- `pnpm test` green; deploy stays green.
 
-## Current state (M2 shipped 2026-07-05, session 2)
+## Current state (M3 shipped 2026-07-05, session 3)
 
-- The meadow renders from `client/public/starter-meadow.json` (rows of
-  single-char tile codes — D14) at phone and desktop width; editing the
-  JSON changes the world on reload; a bogus map degrades to background +
-  console.error, no crash. Verified with headless-Chrome screenshots.
-- `parseMeadowMap` + `TILE_CHARS` live in `shared/src/map.ts`, tested.
-  `MeadowMap.objects` still deliberately absent until M7.
-- `client/src/game/placeholder.ts` → `makePlaceholder(ph, size)` is the
-  reusable colored-square+emoji builder; `stage.ts` bakes one texture per
-  tile kind via `generateTexture` and reuses sprites. Avatars should use
-  the same helper.
-- Camera is whole-map-fit, fixed, in `stage.ts` (`layout()`); clamped
-  follow becomes possible once players have positions this session.
-- 17 tests green (shared 10, server 7). `pnpm dev` runs both sides; Vite
-  proxies `/ws` to :8787.
+- Movement is live: arrow keys → `move` intents → server validates
+  (bounds + walkability in `server/src/world.ts`) → `pos` patches to all
+  sockets (D15 sync model: one welcome snapshot, then `player` upserts +
+  `pos` patches). Refused moves are silence — no wiggle.
+- Players render as placeholder squares+emoji inside the Pixi world
+  (`stage.ts` `syncPlayers`); camera is clamped-follow at
+  `min(screenWidth/8, 64px)` per tile — verified ~48px tiles at 390px
+  width, clamps at map edges, centers pre-join.
+- The map moved to `shared/maps/starter-meadow.json` — single source of
+  truth: server reads it from disk at boot (crashes loudly on a bad map),
+  client bundles it via `@fidget/shared/maps/starter-meadow.json?raw`.
+  `client/public/` is now empty.
+- Spawn = path tile nearest map center, (11,7) on the starter meadow.
+  Everyone stacks there until they move (BACKLOG).
+- 27 tests green (shared 15, server 12). `pnpm dev` runs both sides.
+- New: `.claude/skills/verify/SKILL.md` — the end-to-end recipe (scripted
+  ws clients + headless-Chrome CDP keystrokes/screenshots). Use it.
+
+## Live questions (seeds for the consult beat — AGENTS.md § Session protocol)
+
+- **Art direction:** M4 is "feels good on a phone," and placeholders are
+  deliberately charmless. When does taste get applied to avatars/tiles, and
+  what's the target vibe — hand-drawn, pixel-art, emoji-forward? (Calendar-
+  gated per D13: art taste-testing should start earlier than code needs it.)
+- **Party integration:** should the join screen stay fully open (anyone
+  types any name) or should party content (`birthday-trivia/<year>`, D5) be
+  able to pre-seed expected guests/avatars?
+- **Gameplay:** what does a player *do* in the meadow between activities?
+  Wandering is live; the first ambient fidget-mechanic choice shapes M5+.
 
 ## Notes
 
+- Restart the server between scripted verify runs: the world never forgets
+  players (by design), so state accumulates across runs.
+- Watch for a stray dev server holding :8787 (`lsof -nP -iTCP:8787`).
 - Versions: TypeScript 6, Vite 8, Vitest 4, Pixi 8.19, React 19.2, pnpm 10.
-- Watch for a stray dev server already holding :8787 (one was alive on
-  Bill's machine this session — `lsof -nP -iTCP:8787` before `pnpm dev`).
-- Emoji rendering varies per platform; that's a BACKLOG item, not a derail.

@@ -15,28 +15,62 @@ instead of a blank page. We do the same:
 - **`NEXT.md` is the rail.** It describes exactly where the next session
   starts: the task, the relevant files, what's half-done, and what "done"
   looks like. Rewrite it entirely each session — it is a launchpad, not a log.
-- **Functional and simple beats ambitious and stalled.** When a design
-  question threatens to eat the session, pick the boring option, record it in
-  `docs/DECISIONS.md`, and move.
+- **Functional and simple beats ambitious and stalled.** When an
+  *engineering* question threatens to eat the session, pick the boring
+  option, record it in `docs/DECISIONS.md`, and move. Taste-flavored
+  questions — gameplay feel, art, how the game meets the party — are never
+  boring-optioned; they go to the consult beat (below) or into `NEXT.md`'s
+  Live questions.
+
+## The second directive: the human's taste enters every session
+
+A session that runs start-to-finish with no questions is not a triumph — it
+means the ambiguity lives one level up, undiscussed. The one input agents
+cannot synthesize is what the game should *feel* like. Autonomy is for
+execution, not direction: every session includes one deliberate consult.
 
 ## Session protocol
 
-**Start of session:**
-1. Read `NEXT.md`. That's the task. Resist substituting a more interesting one.
-2. Skim `docs/BACKLOG.md` only if `NEXT.md` points there.
+The session is a cycle: **warm up on the unfinished task → summarize where
+we are → consult on what matters most → tackle the hardest thing → leave an
+easy one Hemingway-unfinished.**
 
-**During:**
+**1. Warm up (the downhill step):**
+- Read `NEXT.md` and finish its deliberately-unfinished task first —
+  momentum before conversation. Resist substituting a more interesting one.
+- Skim `docs/BACKLOG.md` only if `NEXT.md` points there.
+
+**2. Summarize where we are:**
+- A few sentences for the human at the table, not the log: what just landed,
+  what state the game is in, what's on deck.
+
+**3. Consult (do not skip, even when the plan is unambiguous —
+*especially* then):**
+- Hunt for the ambiguity that is foremost *right now*. It is not the same
+  domain every time: gameplay feel, art direction, product choices (how the
+  game interacts with the physical party around it), technical direction, or
+  simply what to focus on next. One sharp question, or a small batch.
+- `NEXT.md`'s Live questions are candidates, not a ceiling — a fresher
+  ambiguity beats a stale queued one.
+- Come with a recommendation and what changes either way, then wait. The
+  answer steers the session.
+
+**4. Work:**
+- Tackle the most difficult item the consult points at — prime session
+  energy goes to the hard thing, not the most tractable one.
 - Scope is one roadmap chunk or less. New ideas and discovered problems go to
   `docs/BACKLOG.md` (one line: what, where, why it matters) — not into the
   current session.
 - No TODO comment without a matching BACKLOG entry.
 
-**End of session (budget ~5 minutes for this):**
-1. Pick the next session's first task. If time allows, *start* it and stop
-   partway.
+**5. End of session (budget ~5 minutes for this):**
+1. Leave an *easy* task Hemingway-unfinished — cut it off mid-implementation
+   with a clear note. That is next session's warm-up. (Hard problems don't
+   get left half-done overnight; easy ones do.)
 2. Rewrite `NEXT.md`: the task, entry-point files, current state (including
    anything intentionally broken: "X fails until Y exists — that's the rail"),
-   and acceptance criteria.
+   acceptance criteria, and **Live questions** — 1–3 ambiguities noticed but
+   not yet consulted on, as seeds for the next session's consult.
 3. Sweep loose ends into `docs/BACKLOG.md`; record decisions in
    `docs/DECISIONS.md`.
 4. Leave the build green, or say exactly how and why it's red in `NEXT.md`.
