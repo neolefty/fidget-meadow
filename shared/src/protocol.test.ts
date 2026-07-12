@@ -47,4 +47,20 @@ describe("parseServerMsg", () => {
     expect(parseServerMsg(JSON.stringify({ t: "toast", text: "hi" }))).toEqual({ t: "toast", text: "hi" });
     expect(parseServerMsg(JSON.stringify({ t: "toast" }))).toBeNull();
   });
+
+  it("parses a player upsert", () => {
+    const player = { id: "p1", name: "Ann", avatar: "cat", x: 3, y: 4 };
+    expect(parseServerMsg(JSON.stringify({ t: "player", player }))).toEqual({ t: "player", player });
+    expect(parseServerMsg(JSON.stringify({ t: "player", player: { id: "p1" } }))).toBeNull();
+  });
+
+  it("parses a pos patch", () => {
+    expect(parseServerMsg(JSON.stringify({ t: "pos", id: "p1", x: 5, y: 6 }))).toEqual({
+      t: "pos",
+      id: "p1",
+      x: 5,
+      y: 6,
+    });
+    expect(parseServerMsg(JSON.stringify({ t: "pos", id: "p1", x: "5", y: 6 }))).toBeNull();
+  });
 });

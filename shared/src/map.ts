@@ -36,6 +36,25 @@ export const TILE_CHARS: Record<string, TileKind> = {
   h: "hedge",
 };
 
+/** Tile kinds a player can stand on: hedge walls the world, water is wet. */
+const WALKABLE: Record<TileKind, boolean> = {
+  grass: true,
+  path: true,
+  flowerbed: true,
+  water: false,
+  hedge: false,
+};
+
+export function isWalkable(kind: TileKind): boolean {
+  return WALKABLE[kind];
+}
+
+/** Tile at (x, y), or null outside the map. */
+export function tileAt(map: MeadowMap, x: number, y: number): TileKind | null {
+  if (x < 0 || y < 0 || x >= map.width || y >= map.height) return null;
+  return map.tiles[y * map.width + x] ?? null;
+}
+
 /**
  * Validate raw map JSON (`{ "rows": ["hhh", "hgh", ...] }`) into a MeadowMap.
  * Returns null on anything bogus, same defensive shape as parseClientMsg.

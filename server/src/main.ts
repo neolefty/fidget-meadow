@@ -7,8 +7,8 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { WebSocketServer, WebSocket } from "ws";
-import { parseClientMsg, type ServerMsg } from "@fidget/shared";
-import { createWorld, join, snapshot } from "./world";
+import { parseClientMsg, parseMeadowMap, type ServerMsg } from "@fidget/shared";
+import { createWorld, join, move, snapshot, toPlayerSnapshot, type Player } from "./world";
 
 const PORT = Number(process.env.PORT ?? 8787);
 
@@ -60,7 +60,15 @@ async function serveStatic(req: IncomingMessage, res: ServerResponse): Promise<v
   }
 }
 
-const world = createWorld();
+// One map, one source of truth: shared/maps (the client bundles the same
+// file at build time). server/src → ../../shared/maps, same shape in Docker.
+const MAP_PATH = fileURLToPath(
+  new URL("../../shared/maps/starter-meadow.json", import.meta.url),
+);
+const map = parseMeadowMap(await readFile(MAP_PATH, "utf8"));
+if (map === null) throw new Error(`invalid meadow map at ${MAP_PATH}`);
+
+const world = createWorld(map);
 const httpServer = createServer((req, res) => {
   if (req.url === "/healthz") {
     res.writeHead(200, { "content-type": "text/plain; charset=utf-8" });
@@ -85,6 +93,8 @@ function broadcast(msg: ServerMsg, except?: WebSocket): void {
 
 wss.on("connection", (ws) => {
   sockets.add(ws);
+  // The player this socket speaks for, set by its join message.
+  let player: Player | null = null;
 
   ws.on("message", (data) => {
     const msg = parseClientMsg(data.toString());
@@ -94,15 +104,26 @@ wss.on("connection", (ws) => {
     }
     switch (msg.t) {
       case "join": {
-        const { player, isReconnect } = join(world, msg);
+        const result = join(world, msg);
+        player = result.player;
         send(ws, {
           t: "welcome",
           you: player.id,
           token: player.token,
           snapshot: snapshot(world),
         });
-        if (!isReconnect) {
+        // Everyone else upserts the (re)joined player — a reconnect may
+        // carry a re-picked name or avatar.
+        broadcast({ t: "player", player: toPlayerSnapshot(player) }, ws);
+        if (!result.isReconnect) {
           broadcast({ t: "toast", text: `${player.name} wandered into the meadow` }, ws);
+        }
+        break;
+      }
+      case "move": {
+        if (player === null) return; // move before join — ignore
+        if (move(world, player, msg.dir)) {
+          broadcast({ t: "pos", id: player.id, x: player.x, y: player.y });
         }
         break;
       }

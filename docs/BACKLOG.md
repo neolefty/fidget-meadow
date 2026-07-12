@@ -53,3 +53,16 @@ pointer here — the list stays scannable, the detail survives.
   code-split or raise the limit; only matters if party-wifi load feels slow.
 - Emoji tile glyphs render per-platform (Pixi Text rasterizes the system
   font); check on a real iPhone/Android at the next gathering. (M2 note.)
+- Avatar sprite goes stale if a reconnecting player re-picks their avatar —
+  stage.ts syncPlayers only moves existing sprites; rebuild on avatar
+  change. (M3; invisible until the join screen allows re-picking.)
+- Everyone spawns on the same path tile, so players stack and fully occlude
+  each other; consider spawn scatter or a tiny per-player offset. (M3.)
+- Move rate = client key-repeat rate; no server-side rate cap. Fine for
+  trusted family, revisit if a phone keyboard ever floods. (M3.)
+- Desktop camera caps tiles at 64px (MAX_TILE_PX in stage.ts) — ad-hoc
+  taste call to stop tiles ballooning; revisit with the art pass. (M3.)
+- Movement snaps tile-to-tile, no walk tween — charm pass later. (M3.)
+- Players never leave the meadow (no leave/expiry, by design for
+  interruptibility) — a long party accumulates ghost avatars; revisit
+  with M5 persistence. (M3.)

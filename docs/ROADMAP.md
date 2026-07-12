@@ -48,14 +48,14 @@ alone would dictate:
 - **M2 — A world to look at** ✅ 2026-07-05, session 2. Map JSON (rows of
   tile codes, D14) → Pixi tile grid via placeholders; starter meadow;
   whole-map fixed camera. Verified on phone- and desktop-width screenshots.
+- **M3 — People in the world** ✅ 2026-07-05, session 3.
+  Server-authoritative movement (D15 patch protocol), players rendered
+  live via avatar placeholders, clamped-follow camera (~8 tiles across),
+  token reconnect resumes position. Verified with scripted ws clients +
+  headless-Chrome keystrokes/screenshots (see .claude/skills/verify).
+  The join screen sub-item rolled forward — it opens the next session.
 
 ## Remaining, in recommended order
-
-### M3 — People in the world
-
-Join screen (name + avatar from a hardcoded list), server-authoritative
-movement, other players visible live, localStorage-token reconnect.
-**Done means:** two phones side by side see each other walk around.
 
 ### M4 — Feels good on a phone
 

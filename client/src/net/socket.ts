@@ -5,6 +5,7 @@
 import {
   parseServerMsg,
   type ClientMsg,
+  type MoveDir,
   type PlayerId,
   type WorldSnapshot,
 } from "@fidget/shared";
@@ -41,6 +42,11 @@ export function getState(): NetState {
 
 let socket: WebSocket | null = null;
 let retryMs = 500;
+
+/** Send a move intent; the world only changes when the `pos` patch returns. */
+export function sendMove(dir: MoveDir): void {
+  send({ t: "move", dir });
+}
 
 function send(msg: ClientMsg): void {
   if (socket && socket.readyState === WebSocket.OPEN) {
@@ -80,6 +86,27 @@ export function connect(): void {
       case "toast":
         setState({ lastToast: msg.text });
         break;
+      case "player": {
+        // Upsert by id (D15) — join and reconnect look the same here.
+        const players = state.snapshot?.players ?? [];
+        setState({
+          snapshot: {
+            players: [...players.filter((p) => p.id !== msg.player.id), msg.player],
+          },
+        });
+        break;
+      }
+      case "pos": {
+        if (state.snapshot === undefined) break;
+        setState({
+          snapshot: {
+            players: state.snapshot.players.map((p) =>
+              p.id === msg.id ? { ...p, x: msg.x, y: msg.y } : p,
+            ),
+          },
+        });
+        break;
+      }
     }
   };
 

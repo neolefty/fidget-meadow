@@ -1,6 +1,6 @@
 // Protocol source of truth (docs/ARCHITECTURE.md § Protocol).
 // Extend the unions first; the compiler then points at every switch that
-// needs a new case, client and server. M1 scope: join / welcome / toast.
+// needs a new case, client and server.
 
 export type PlayerId = string;
 
@@ -25,13 +25,30 @@ export type ClientMsg =
       avatar: string;
       token?: string;
     }
-  // M3 rail: parsed but not yet handled — the server ignores `move` until
-  // world.ts learns positions and a patch broadcast exists.
+  /** Intent only — the server applies rules and broadcasts `pos` (or not). */
   | { t: "move"; dir: MoveDir };
 
+// Sync model (D15): `welcome` carries the full snapshot once, then tiny
+// patches keep everyone current. Receivers upsert `player` by id.
 export type ServerMsg =
   | { t: "welcome"; you: PlayerId; token: string; snapshot: WorldSnapshot }
-  | { t: "toast"; text: string };
+  | { t: "toast"; text: string }
+  /** One player's full public state — broadcast on join and reconnect. */
+  | { t: "player"; player: PlayerSnapshot }
+  /** Position patch — broadcast after a server-approved move. */
+  | { t: "pos"; id: PlayerId; x: number; y: number };
+
+function isPlayerSnapshot(v: unknown): v is PlayerSnapshot {
+  if (typeof v !== "object" || v === null) return false;
+  const p = v as Record<string, unknown>;
+  return (
+    typeof p.id === "string" &&
+    typeof p.name === "string" &&
+    typeof p.avatar === "string" &&
+    typeof p.x === "number" &&
+    typeof p.y === "number"
+  );
+}
 
 /** Validate one wire message from a client. Returns null on anything bogus. */
 export function parseClientMsg(raw: unknown): ClientMsg | null {
@@ -100,6 +117,18 @@ export function parseServerMsg(raw: unknown): ServerMsg | null {
     }
     case "toast":
       return typeof msg.text === "string" ? { t: "toast", text: msg.text } : null;
+    case "player":
+      return isPlayerSnapshot(msg.player) ? { t: "player", player: msg.player } : null;
+    case "pos": {
+      if (
+        typeof msg.id === "string" &&
+        typeof msg.x === "number" &&
+        typeof msg.y === "number"
+      ) {
+        return { t: "pos", id: msg.id, x: msg.x, y: msg.y };
+      }
+      return null;
+    }
     default:
       return null;
   }

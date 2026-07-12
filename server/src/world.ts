@@ -2,7 +2,15 @@
 // sockets live in main.ts. No persistence yet — SQLite is milestone M5.
 
 import { randomUUID } from "node:crypto";
-import type { PlayerId, PlayerSnapshot, WorldSnapshot } from "@fidget/shared";
+import {
+  isWalkable,
+  tileAt,
+  type MeadowMap,
+  type MoveDir,
+  type PlayerId,
+  type PlayerSnapshot,
+  type WorldSnapshot,
+} from "@fidget/shared";
 
 /** Generates opaque unique strings (player ids and reconnect tokens). */
 export type IdGenerator = () => string;
@@ -18,15 +26,35 @@ export interface Player {
 }
 
 export interface World {
+  map: MeadowMap;
   /** Players keyed by their reconnect token. */
   players: Map<string, Player>;
   genId: IdGenerator;
+  spawn: { x: number; y: number };
 }
 
-const SPAWN = { x: 0, y: 0 };
+export function createWorld(map: MeadowMap, genId: IdGenerator = randomUUID): World {
+  return { map, players: new Map(), genId, spawn: findSpawn(map) };
+}
 
-export function createWorld(genId: IdGenerator = randomUUID): World {
-  return { players: new Map(), genId };
+/** The path tile nearest the map's center — deterministic and walkable. */
+function findSpawn(map: MeadowMap): { x: number; y: number } {
+  const cx = (map.width - 1) / 2;
+  const cy = (map.height - 1) / 2;
+  let best: { x: number; y: number } | null = null;
+  let bestDist = Infinity;
+  for (let y = 0; y < map.height; y++) {
+    for (let x = 0; x < map.width; x++) {
+      if (tileAt(map, x, y) !== "path") continue;
+      const dist = (x - cx) ** 2 + (y - cy) ** 2;
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = { x, y };
+      }
+    }
+  }
+  if (best === null) throw new Error("map has no path tile to spawn on");
+  return best;
 }
 
 export interface JoinRequest {
@@ -61,11 +89,32 @@ export function join(world: World, req: JoinRequest): JoinResult {
     token: world.genId(),
     name: req.name,
     avatar: req.avatar,
-    x: SPAWN.x,
-    y: SPAWN.y,
+    x: world.spawn.x,
+    y: world.spawn.y,
   };
   world.players.set(player.token, player);
   return { player, isReconnect: false };
+}
+
+const DIR_DELTA: Record<MoveDir, { dx: number; dy: number }> = {
+  north: { dx: 0, dy: -1 },
+  south: { dx: 0, dy: 1 },
+  west: { dx: -1, dy: 0 },
+  east: { dx: 1, dy: 0 },
+};
+
+/**
+ * Apply a move intent. Mutates the player and returns true only if the
+ * target tile is on the map and walkable; a refused move is silent — the
+ * client shows no wiggle because nothing is broadcast.
+ */
+export function move(world: World, player: Player, dir: MoveDir): boolean {
+  const { dx, dy } = DIR_DELTA[dir];
+  const tile = tileAt(world.map, player.x + dx, player.y + dy);
+  if (tile === null || !isWalkable(tile)) return false;
+  player.x += dx;
+  player.y += dy;
+  return true;
 }
 
 /** Public view of the world — tokens deliberately excluded. */
